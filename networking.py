@@ -42,7 +42,6 @@ def declare_dead_node(node_id):
 def print_routing_table():
 	print "not yet implemented"
 
-
 def listen_for_questions():
         receiver_socket = socket.socket()
         host = "172.20.20.20"

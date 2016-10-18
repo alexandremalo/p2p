@@ -1,7 +1,7 @@
 import socket
 
 def download_file(filename, host, port):
-	file = open("/home/alex/Documents/enseirb/p2p/download/"+filename,'wb')
+	file = open("download/"+filename,'wb')
 	file.write(get_socket_answer("GET_FILE "+filename, host, port))
 	return None
 
@@ -16,3 +16,5 @@ def get_socket_answer(question, host, port):
 
 #print get_socket_answer("GET_LIST", "localhost", 5001)
 download_file("test123", "localhost", 5001)
+
+

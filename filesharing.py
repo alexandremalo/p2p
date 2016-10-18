@@ -14,7 +14,7 @@ def give_file(filename):
 
 def test(test):
         receiver_socket = socket.socket()
-        host = "localhost"
+        host = "172.20.20.20"
         port = 5001
         receiver_socket.bind((host, port))
         receiver_socket.listen(5)
@@ -50,9 +50,12 @@ def get_socket_answer(question, host, port):
 #print get_socket_answer("GET_LIST", "localhost", 5001)
 #download_file("test123", "localhost", 5001)
 
+#get_socket_answer("GET_LIST", 172.20.17.18, 5001)
+
 print "Welcome to you my friend, please choose an option:"
 print "1 - Try connecting to a distant host"
 print "2 - Open incoming secure socket"
+
 
 action = 0;
 while action == 0:

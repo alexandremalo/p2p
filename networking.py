@@ -1,6 +1,7 @@
 import socket
 import glob
 import os
+import threading
 
 from Node import Node
 from RoutingTable import RoutingTable
@@ -61,14 +62,24 @@ def listen_for_questions(routing_table):
         while True:
                 socket_obj, source = receiver_socket.accept()
                 print "Connection from ", source
+		source_IP = source[0]
                 message = socket_obj.recv(1024)
 		print message
 		splitted_message = message.split("::")	
-		if message.split("::")[0] == "NEW":
+		if splitted_message[0] == "NEW":
 			socket_obj.sendall("NEW::"+str(rt[0].get_node_id())+"::"+str(rt[0].get_hops())+"::"+str(rt[0].get_connected_nodes()))
-			routing_table.evaluate_new_request(splitted_message[1], splitted_message[2], splitted_message[3])
+			follow_message = routing_table.evaluate_new_request(splitted_message[1], splitted_message[2], splitted_message[3], source_IP)
+			if follow_message:
+				follow_message_to_connected_nodes(splitted_message, rt)
 			routing_table.display_table()
 			
+
+def follow_message_to_connected_nodes(message, rt):
+	new_message = message[0]+message[1]+str(int(message[2])+1)+message[3]
+	for entry in rt:
+		if entry.get_hops() == 1:
+			send_message_to_directly_connected_node(new_message, entry.get_ip(), 5001)		
+	
 
 def ask_question_to_node(question, id):
 	return None
@@ -108,4 +119,8 @@ def test(rt):
 
 print "starting P2P...."
 rt = init("1")
+#print "Starting to listen"
+#t = threading.Thread(listen_for_questions(rt))
+#t.start()
+#print "YES!"
 test(rt)

@@ -11,10 +11,7 @@ def init(my_id):
 	return rt
 
 def join_cluster(ip):
-	print send_message_to_directly_connected_node("NEW::2::0::0")
-	return None
-
-def connect_directly_to_nodes():
+	print send_message_to_directly_connected_node("JOIN::2::0::0")
 	return None
 
 def welcome_new_node():
@@ -22,10 +19,18 @@ def welcome_new_node():
 	send_message_to_node(list_of_nodes)
 	return None
 
-def get_list_of_directly_connected_nodes():
-	return None
-
 def ping_directly_connected_nodes():
+	message = "PING::0::0::0"
+	list = get_directly_connected_host(rt)
+	dead_nodes = []
+        for entry in list:
+                answer = send_message_to_directly_connected_node(message, entry.get_ip(), 5001, True)
+		if answer.split("::")[0] == "PONG":
+			print "stil up"
+		else:
+			dead_nodes.append(entry)
+	for entry in dead_nodes:
+		declare_dead_node(entry.get_node_id()):
 	return None
 
 def get_next_hop_to_node(node_id):
@@ -76,10 +81,20 @@ def listen_for_questions(routing_table):
 
 def follow_message_to_connected_nodes(message, rt):
 	new_message = message[0]+message[1]+str(int(message[2])+1)+message[3]
+	message_all_connected_nodes(new_message, rt):	
+
+	
+def message_all_connected_nodes(message, rt):
+        list = get_directly_connected_host(rt)
+        for entry in list:
+                send_message_to_directly_connected_node(message, entry.get_ip(), 5001)
+
+def get_directly_connected_host(rt):
+	list_to_return = []
 	for entry in rt:
 		if entry.get_hops() == 1:
-			send_message_to_directly_connected_node(new_message, entry.get_ip(), 5001)		
-	
+			list_to_return.append(entry)
+	return list_to_return
 
 def ask_question_to_node(question, id):
 	return None

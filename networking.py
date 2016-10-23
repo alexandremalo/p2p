@@ -30,7 +30,7 @@ def ping_directly_connected_nodes():
 		else:
 			dead_nodes.append(entry)
 	for entry in dead_nodes:
-		declare_dead_node(entry.get_node_id()):
+		declare_dead_node(entry.get_node_id())
 	return None
 
 def get_next_hop_to_node(node_id):
@@ -81,7 +81,7 @@ def listen_for_questions(routing_table):
 
 def follow_message_to_connected_nodes(message, rt):
 	new_message = message[0]+message[1]+str(int(message[2])+1)+message[3]
-	message_all_connected_nodes(new_message, rt):	
+	message_all_connected_nodes(new_message, rt)
 
 	
 def message_all_connected_nodes(message, rt):
@@ -134,8 +134,9 @@ def test(rt):
 
 print "starting P2P...."
 rt = init("1")
-#print "Starting to listen"
-#t = threading.Thread(listen_for_questions(rt))
+print "Starting to listen"
+#t = threading.Thread(target=listen_for_questions(rt), args=())
+#t.daemon = True
 #t.start()
 #print "YES!"
 test(rt)

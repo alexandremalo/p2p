@@ -54,6 +54,7 @@ def writefile(name,obj):
 	f.write(obj)
 	f.close()
 
+#TODO : change this function to support lookup for node's public key using routing table
 def lookup_public_key(node_id):
 	if os.path.isfile('keys/public.key'):
 		RSA_key = readfile('keys/public.key')

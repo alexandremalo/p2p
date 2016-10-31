@@ -1,3 +1,5 @@
+from  p2pMec import RoutingTable
+
 def find_closest_node_to(id, my_id, total_host):
                 if id >= total_host:
                         print "Invalid ID..."
@@ -16,9 +18,15 @@ def find_closest_node_to(id, my_id, total_host):
                         i += 1
                 return closest
 
+rt = RoutingTable(1, 1, 4)
+rt.add_new_node(2, 2, "node2", 2)
+rt.add_new_node(0, 0, "node0", 0)
 
+rt.display_table()
+rt.find_closest_node_to(3)
+
+test = 3-4 % 5
+print test
 #print find_closest_node_to(2,5,11)
 
 
-test = "test113"
-print test.split(",")[0]

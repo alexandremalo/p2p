@@ -11,17 +11,10 @@ def new_cluster(my_port):
 	return rt
 
 def join_cluster(ip, port, my_port):
-	#completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
-	
-	#while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
-	#	ip = completeanswer.split("::")[1]
-        #        port = int(completeanswer.split("::")[2])
-	#	completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
-	completeanswer, ip, port = send_message_unkown_node("JOIN"+str(my_port), ip, port, True)
+	completeanswer, ip, port = send_message_unkown_node("JOIN::"+str(my_port), ip, port, True)
 	answer = completeanswer.split("|_|")[0]
         new_id = answer.split("::")[1]
         rt = None
-
 	if answer.split("::")[0] == "WELCOME":
 		rt = RoutingTable(int(answer.split("::")[1]), my_port, int(answer.split("::")[1])+1)
 	i = 0
@@ -39,8 +32,14 @@ def join_cluster(ip, port, my_port):
 	announce_myself(rt)
 	return rt
 
+def update_rt_for_new_node(node_ip, rt, ip, port):
+		return None
+
+
 def send_message_unkown_node(message, ip, port, need_answer=False):
+	print "Sent question: "+message
 	completeanswer = send_message_to_directly_connected_node(message, ip, port, need_answer)
+	print "Answer Received: "+completeanswer
 	while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
                 ip = completeanswer.split("::")[1]
                 port = int(completeanswer.split("::")[2])
@@ -49,30 +48,42 @@ def send_message_unkown_node(message, ip, port, need_answer=False):
 	
 
 def add_node_id_to_rt(node_id, rt):
-	ip, port = rt.find_closest_node_to(node_id)
-	answer, ip, port = send_message_unkown_node("PING::"+str(rt.get_my_id()), ip, port, True)
-	if answer.split("::") == "PONG":
+	ip, port = rt.get_node_info(rt.find_closest_node_to(node_id))
+	answer, ip, port = send_message_unkown_node("PING::"+str(node_id), ip, int(port), True)
+	if answer.split("::")[0] == "PONG":
 		rt.add_new_node(node_id, node_id, ip, port)
+		print "OK!!! adding new entry to rt: "
+		rt.display_table()
 	
 
-def repopulate_rt(rt):
+def repopulate_rt(rt, desire_size):
+	#rt_temp =  RoutingTable(rt.get_my_id(), 0, desire_size)
+	
+	print "list of nodes wanted: "+str(rt.get_needed_nodes())
 	for id in rt.get_needed_nodes():
-		add_node_id_to_rt(id, rt)
-	print "before cleanup"
+		found = False
+		for entry in rt.get_table():
+			if int(entry.get_node_id()) == int(id):
+				print "already exist:"
+				found = True
+		if found == False:
+			add_node_id_to_rt(id, rt)
+			print "success to add id: "+str(id)
+	print "new table after addons: "
 	rt.display_table()
 	for entry in rt.get_table():
 		entry_needed = False
 		for id in rt.get_needed_nodes():
-			if entry.get_node_id() == id:
+			if int(entry.get_node_id()) == int(id):
 				entry_needed = True
-		if entry_needed != True:
+		if entry_needed == False:
 			rt.get_table().remove(entry)
-	print "after_cleanup"
+	print "after_cleanup: "
 	rt.display_table()
 
 
 def announce_myself(rt):
-	message = "JOINED::"+str(rt.get_my_id())
+	message = "JOINED::"+str(rt.get_my_id())+"::"+str(rt.get_my_port())
 	message_all_nodes(message, rt)
 
 
@@ -106,8 +117,18 @@ def take_action_on_message(string, rt, ip):
 	elif split_message[0] == "JOINED":
 		if int(split_message[1]) +1 > int(rt.get_total_host()):
 			print "Need to update my table"
+			rt.adding_new_node()
+			#accept_new_node("")
+			repopulate_rt(rt, int(split_message[1])+1)
+			#rt.adding_new_node()
 		else:
 			print "Already know about that..."
+	elif split_message[0] == "PING":
+		if rt.get_my_id() == int(split_message[1]):
+			return "PONG"
+		else:
+			ip, port = rt.get_node_info(rt.find_closest_node_to(int(split_message[1])))
+			return "REDIRECT::"+str(ip)+"::"+str(port)
 	return "No_answer_needed"
 
 
@@ -133,7 +154,7 @@ def send_message_to_directly_connected_node(message, host, port, answer_needed=F
        		client_socket.connect((host, int(port)))
        		client_socket.send(message)
 	except:
-		print "Error: Connection to server failed on "+host+str(port)
+		print "Error: Connection to server failed on "+str(host)+str(port)
 	if answer_needed:
 		try:
 			toReturn = client_socket.recv(1024)

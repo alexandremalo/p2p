@@ -30,7 +30,7 @@ class ThreadingExample(object):
         host = "0.0.0.0"
         port = self.port
         receiver_socket.bind((host, port))
-        receiver_socket.listen(5)
+        receiver_socket.listen(100)
         while True:
         	print('Listen for incomming tcp messages on :'+host+":"+str(self.port))
                 socket_obj, source = receiver_socket.accept()

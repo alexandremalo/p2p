@@ -15,16 +15,17 @@ class RoutingTable:
 
 	def get_node_info(self, id):
 		IptoReturn = None
-		self.display_table()
+		#self.display_table()
 		PorttoReturn = None
+		found = False
 		for node in self.table:
-			print node.get_node_id()
+			#print node.get_node_id()
 			if int(node.get_node_id()) == int(id):
-				print "YES"
+				found = True
 				IptoReturn = node.get_node_ip()
 				PorttoReturn = node.get_node_port()
-		print IptoReturn
-		print PorttoReturn
+		#print IptoReturn
+		#print PorttoReturn
 		return IptoReturn, PorttoReturn
 
 	def adding_new_node(self):
@@ -39,36 +40,49 @@ class RoutingTable:
 
 
 	def find_closest_node_to(self, id):
-		if id >= self.total_host:
+		if id > self.total_host:
                         print "Invalid ID..."
                         return None
 
-                closest = self.my_id
+                mat_closest = self.my_id
+		real_closest = self.my_id
+		best_available_closest = self.my_id
                 distance = id - self.my_id
                 if distance < 0:
                         distance = self.total_host + distance
                         print "passing by 0"
-                print distance
+                #print distance
                 i = 0
                 while 2**i <= distance:
-                        print 2**i
-                        closest = (2**i + self.my_id) % self.total_host
+                        mat_closest = (2**i + self.my_id) % self.total_host
+			print "Mat_Closest: "+str(mat_closest)
+			exists = False
+			best_choice = distance
+			for entry in self.table:
+				if int(entry.get_node_id()) == int(mat_closest):
+					exists = True
+				#else:
+					#temp_distance = entry.get_node_id() - self.my_id
+					#if temp_distance < 0:
+					#	temp_distance = self.total_host + temp_distance
+					#if temp_distance > max and temp_distance < 2**i:
+					#	real_closest = entry.get_node_id()
+			if exists == True:
+				best_available_closest = mat_closest
+			#else:
+			#	best_available_closest = real_closest
                         i += 1
-                if i == distance:
-			print "Direct connected"
-		return closest
+		print "BAC: "+str(best_available_closest)
+		return best_available_closest
 
 	def get_needed_nodes(self):
 		i = 0
 		list_of_needed_nodes = []
-		while 2**i <= self.total_host:
-			list_of_needed_nodes.append((i+self.my_id) % self.total_host)
+		while 2**i < self.total_host:
+			list_of_needed_nodes.append((2**i+self.my_id) % self.total_host)
 			i += 1
 		return list_of_needed_nodes
 
-	def evaluate_again(new_total_host):
-		if int(new_total_host) != int(self.total_host):
-			
 			
 	def add_new_node(self, id, id_closest, ip, port):
 		new_node = Node(id, id_closest, ip, port)
@@ -77,6 +91,9 @@ class RoutingTable:
 
 	def get_my_id(self):
 		return self.my_id
+
+	def get_my_port(self):
+		return self.my_port
 
 	def get_total_host(self):
 		return self.total_host

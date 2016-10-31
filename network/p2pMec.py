@@ -7,8 +7,8 @@ class RoutingTable:
 		self.table = []
 		self.total_host = total_host
 		self.my_port = my_port
-		this_node = Node(my_id, my_id, "127.0.0.1", my_port)
-		self.table.append(this_node)
+		#this_node = Node(my_id, my_id, "127.0.0.1", my_port)
+		#self.table.append(this_node)
 
 	def get_table(self):
 		return self.table
@@ -32,6 +32,7 @@ class RoutingTable:
 
 	def display_table(self):
 		print "table:"
+		print "My_id: "+str(self.my_id)
 		for entry in self.table:
 			print entry.get_node_id(), entry.get_closest_to(), entry.get_node_ip(), entry.get_node_port()
 		return None
@@ -56,8 +57,19 @@ class RoutingTable:
                 if i == distance:
 			print "Direct connected"
 		return closest
-		
-	
+
+	def get_needed_nodes(self):
+		i = 0
+		list_of_needed_nodes = []
+		while 2**i <= self.total_host:
+			list_of_needed_nodes.append((i+self.my_id) % self.total_host)
+			i += 1
+		return list_of_needed_nodes
+
+	def evaluate_again(new_total_host):
+		if int(new_total_host) != int(self.total_host):
+			
+			
 	def add_new_node(self, id, id_closest, ip, port):
 		new_node = Node(id, id_closest, ip, port)
 		self.table.append(new_node)

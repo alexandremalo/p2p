@@ -11,29 +11,85 @@ def new_cluster(my_port):
 	return rt
 
 def join_cluster(ip, port, my_port):
-	completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
-	while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
-		completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), completeanswer.split("::")[1], int(completeanswer.split("::")[2]), True)
+	#completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
+	
+	#while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
+	#	ip = completeanswer.split("::")[1]
+        #        port = int(completeanswer.split("::")[2])
+	#	completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
+	completeanswer, ip, port = send_message_unkown_node("JOIN"+str(my_port), ip, port, True)
 	answer = completeanswer.split("|_|")[0]
         new_id = answer.split("::")[1]
         rt = None
 
 	if answer.split("::")[0] == "WELCOME":
 		rt = RoutingTable(int(answer.split("::")[1]), my_port, int(answer.split("::")[1])+1)
-	if int(rt.get_total_host()) == 2 and int(rt.get_my_id()) == 1:
-		rt.add_new_node(0, 0, ip, port)
+	i = 0
+	while 2**i <= int(rt.get_total_host()):
+		if 2**i == int(rt.get_my_id()):
+			rt.add_new_node(int(rt.get_my_id())-1, int(rt.get_my_id())-1, ip, port)
+		i += 1
+	routing_table_dump = completeanswer.split("|_|")
+	i = 2
+	while i < len(routing_table_dump):
+		entry_temp = routing_table_dump[i].split("__")
+		rt.add_new_node(int(entry_temp[0]), int(entry_temp[1]), entry_temp[2], int(entry_temp[3]))
+		i += 1
 	rt.display_table()
+	announce_myself(rt)
 	return rt
 
+def send_message_unkown_node(message, ip, port, need_answer=False):
+	completeanswer = send_message_to_directly_connected_node(message, ip, port, need_answer)
+	while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
+                ip = completeanswer.split("::")[1]
+                port = int(completeanswer.split("::")[2])
+                completeanswer = send_message_to_directly_connected_node(message, ip, port, need_answer)
+	return completeanswer, ip, port
+	
+
+def add_node_id_to_rt(node_id, rt):
+	ip, port = rt.find_closest_node_to(node_id)
+	answer, ip, port = send_message_unkown_node("PING::"+str(rt.get_my_id()), ip, port, True)
+	if answer.split("::") == "PONG":
+		rt.add_new_node(node_id, node_id, ip, port)
+	
+
+def repopulate_rt(rt):
+	for id in rt.get_needed_nodes():
+		add_node_id_to_rt(id, rt)
+	print "before cleanup"
+	rt.display_table()
+	for entry in rt.get_table():
+		entry_needed = False
+		for id in rt.get_needed_nodes():
+			if entry.get_node_id() == id:
+				entry_needed = True
+		if entry_needed != True:
+			rt.get_table().remove(entry)
+	print "after_cleanup"
+	rt.display_table()
+
+
+def announce_myself(rt):
+	message = "JOINED::"+str(rt.get_my_id())
+	message_all_nodes(message, rt)
+
+
+def message_all_nodes(message, rt):
+	for entry in rt.get_table():
+		if int(entry.get_node_id()) != int(rt.get_my_id()):
+			send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()))
+		
 def welcome_new_node(rt, ip, port):
 	rt.set_total_host(rt.get_total_host()+1)
 	new_id = str(rt.get_total_host()-1)
 	basic_reply = "WELCOME::"+str(new_id)
-	routing_table_dump = "|_|TABLE|_|"
+	routing_table_dump = "|_|TABLE"
 	for node in rt.get_table():
 		entry = ""
 		if node.get_node_id() != rt.get_my_id():
-			entry = str(node.get_node_id())+"__"+str(node.get_closest_to())+"__"+str(node.get_node_ip())+"__"+str(node.get_node_port())
+			entry = "|_|"+str(node.get_node_id())+"__"+str(node.get_closest_to())+"__"+str(node.get_node_ip())+"__"+str(node.get_node_port())
 		routing_table_dump += entry
 	rt.add_new_node(new_id, new_id, ip, port)
 	rt.display_table()
@@ -43,12 +99,16 @@ def take_action_on_message(string, rt, ip):
 	split_message = string.split("::")
 	if split_message[0] == "JOIN":
 		if rt.get_my_id() == rt.get_total_host() - 1:
-			#rt.set_total_host(rt.get_total_host()+1)
-			#return "WELCOME::"+str(rt.get_total_host()-1)
 			return welcome_new_node(rt, ip, split_message[1])
 		else:
 			ip, port = rt.get_node_info(rt.find_closest_node_to(rt.get_total_host() - 1))
 			return "REDIRECT::"+str(ip)+"::"+str(port)
+	elif split_message[0] == "JOINED":
+		if int(split_message[1]) +1 > int(rt.get_total_host()):
+			print "Need to update my table"
+		else:
+			print "Already know about that..."
+	return "No_answer_needed"
 
 
 def ping_directly_connected_nodes():

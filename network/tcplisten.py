@@ -38,10 +38,22 @@ class ThreadingExample(object):
                 source_IP = source[0]
                 message = socket_obj.recv(1024)
                 print "I received: "+message
-		reply = take_action_on_message(message, self.routing_table, source_IP)
-		if reply != "No_answer_needed":
-			print "I will reply :"+reply
-			socket_obj.sendall(reply)
+		#reply = take_action_on_message(message, self.routing_table, source_IP)
+		#if reply != "No_answer_needed":
+			#print "I will reply :"+reply
+			#socket_obj.sendall(reply)
+		take_action_thread = threading.Thread(target=self.take_action, args=(message, self.routing_table, source_IP, socket_obj))
+                take_action_thread.start()
+
+    def take_action(self, message, rt, source_IP, socket_obj):
+                reply = take_action_on_message(message, self.routing_table, source_IP)
+                if reply != "No_answer_needed":
+                        print "I will reply :"+reply
+                        socket_obj.sendall(reply)
+
+
+
+
 
 
 #example = ThreadingExample()

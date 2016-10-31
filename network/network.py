@@ -57,8 +57,6 @@ def add_node_id_to_rt(node_id, rt):
 	
 
 def repopulate_rt(rt, desire_size):
-	#rt_temp =  RoutingTable(rt.get_my_id(), 0, desire_size)
-	
 	print "list of nodes wanted: "+str(rt.get_needed_nodes())
 	for id in rt.get_needed_nodes():
 		found = False
@@ -103,6 +101,7 @@ def welcome_new_node(rt, ip, port):
 			entry = "|_|"+str(node.get_node_id())+"__"+str(node.get_closest_to())+"__"+str(node.get_node_ip())+"__"+str(node.get_node_port())
 		routing_table_dump += entry
 	rt.add_new_node(new_id, new_id, ip, port)
+	repopulate_rt(rt, rt.get_total_host())
 	rt.display_table()
 	return basic_reply+routing_table_dump
 
@@ -118,9 +117,8 @@ def take_action_on_message(string, rt, ip):
 		if int(split_message[1]) +1 > int(rt.get_total_host()):
 			print "Need to update my table"
 			rt.adding_new_node()
-			#accept_new_node("")
 			repopulate_rt(rt, int(split_message[1])+1)
-			#rt.adding_new_node()
+			message_all_nodes(string, rt)
 		else:
 			print "Already know about that..."
 	elif split_message[0] == "PING":

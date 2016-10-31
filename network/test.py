@@ -17,4 +17,8 @@ def find_closest_node_to(id, my_id, total_host):
                 return closest
 
 
-print find_closest_node_to(2,5,11)
+#print find_closest_node_to(2,5,11)
+
+
+test = "test113"
+print test.split(",")[0]

@@ -2,14 +2,12 @@ import socket
 import glob
 import os
 import threading
+import network
 
 from Node import Node
-from RoutingTable import RoutingTable
+from p2pMec import RoutingTable
 from tcplisten import ThreadingExample
-
-def init(my_id):
-	rt = RoutingTable(my_id)
-	return rt
+from network import *
 
 def send_tcp_message(message, host, port, answer_needed=False):
         toReturn = None
@@ -26,7 +24,7 @@ def send_tcp_message(message, host, port, answer_needed=False):
                         print "Error: Answer from server was expected :("
         return toReturn
 
-def start(rt):
+def start():
 	answer = " "
 	while answer != "3":
 		print "1 - Normal mode"
@@ -35,8 +33,7 @@ def start(rt):
 	        answer = raw_input("choose an option: ")
        		if answer == "1":
 			var = raw_input("TCP PORT: ")
-                        port = int(var)
-                        listener = ThreadingExample(rt, port)
+                        listenerPort = int(var)
 			answer_normal = " "
 			while answer_normal != "3":
 				print "1 - Join Cluster"
@@ -46,20 +43,28 @@ def start(rt):
 				if answer_normal == "1":
 					ip = raw_input("IP: ")
 					port = raw_input("Port: ")
-					
+					rt = join_cluster(ip, port, listenerPort)
+					listener = ThreadingExample(rt, listenerPort)
+					print(" ")
 				elif answer_normal == "2":
 					print "New Cluster!!"
+					rt = new_cluster(listenerPort)
+					listener = ThreadingExample(rt, listenerPort)
+					print(" ")
 					while True:
 						message = raw_input("Message: ")
 						ip = raw_input("IP: ")
 						port = raw_input("Port: ")
 						print send_tcp_message(message, ip, int(port), False)
-				message = raw_input("Send Message")
 		elif answer == "2":
 			print("debug_mode...")
+			while True:
+                                  message = raw_input("Message: ")
+                                  ip = raw_input("IP: ")
+                                  port = raw_input("Port: ")
+                                  print send_tcp_message(message, ip, int(port), False)
 	
 
 
 print "starting P2P...."
-rt = init("1")
-start(rt)
+start()

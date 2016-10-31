@@ -5,19 +5,51 @@ import threading
 
 from Node import Node
 from p2pMec import RoutingTable
-from tcplisten import ThreadingExample
 
-def init(my_id):
-	rt = RoutingTable(my_id)
+def new_cluster(my_port):
+	rt = RoutingTable(0, my_port, 1)
 	return rt
 
-def join_cluster(ip, port):
-	new_id, total_host = send_message_to_directly_connected_node("JOIN", ip, port, True)
-	rt = new RoutingTable(new_id)
-	get_nodes(ip, port, )	
+def join_cluster(ip, port, my_port):
+	completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), ip, port, True)
+	while completeanswer.split("|_|")[0].split("::")[0] == "REDIRECT":
+		completeanswer = send_message_to_directly_connected_node("JOIN::"+str(my_port), completeanswer.split("::")[1], int(completeanswer.split("::")[2]), True)
+	answer = completeanswer.split("|_|")[0]
+        new_id = answer.split("::")[1]
+        rt = None
 
-def welcome_new_node():
-	return None
+	if answer.split("::")[0] == "WELCOME":
+		rt = RoutingTable(int(answer.split("::")[1]), my_port, int(answer.split("::")[1])+1)
+	if int(rt.get_total_host()) == 2 and int(rt.get_my_id()) == 1:
+		rt.add_new_node(0, 0, ip, port)
+	rt.display_table()
+	return rt
+
+def welcome_new_node(rt, ip, port):
+	rt.set_total_host(rt.get_total_host()+1)
+	new_id = str(rt.get_total_host()-1)
+	basic_reply = "WELCOME::"+str(new_id)
+	routing_table_dump = "|_|TABLE|_|"
+	for node in rt.get_table():
+		entry = ""
+		if node.get_node_id() != rt.get_my_id():
+			entry = str(node.get_node_id())+"__"+str(node.get_closest_to())+"__"+str(node.get_node_ip())+"__"+str(node.get_node_port())
+		routing_table_dump += entry
+	rt.add_new_node(new_id, new_id, ip, port)
+	rt.display_table()
+	return basic_reply+routing_table_dump
+
+def take_action_on_message(string, rt, ip):
+	split_message = string.split("::")
+	if split_message[0] == "JOIN":
+		if rt.get_my_id() == rt.get_total_host() - 1:
+			#rt.set_total_host(rt.get_total_host()+1)
+			#return "WELCOME::"+str(rt.get_total_host()-1)
+			return welcome_new_node(rt, ip, split_message[1])
+		else:
+			ip, port = rt.get_node_info(rt.find_closest_node_to(rt.get_total_host() - 1))
+			return "REDIRECT::"+str(ip)+"::"+str(port)
+
 
 def ping_directly_connected_nodes():
 	message = "PING::0::0::0"
@@ -33,50 +65,21 @@ def ping_directly_connected_nodes():
 		declare_dead_node(entry.get_node_id())
 	return None
 
-def listen_for_questions(routing_table, tcpport):
-	rt = routing_table.get_table()
-        receiver_socket = socket.socket()
-        host = "0.0.0.0"
-        port = tcpport
-        receiver_socket.bind((host, port))
-        receiver_socket.listen(5)
-        while True:
-                socket_obj, source = receiver_socket.accept()
-                print "Connection from ", source
-		source_IP = source[0]
-                message = socket_obj.recv(1024)
-		print message
-		splitted_message = message.split("::")	
-		if splitted_message[0] == "NEW":
-			socket_obj.sendall("NEW::"+str(rt[0].get_node_id())+"::"+str(rt[0].get_hops())+"::"+str(rt[0].get_connected_nodes()))
-			follow_message = routing_table.evaluate_new_request(splitted_message[1], splitted_message[2], splitted_message[3], source_IP)
-			if follow_message:
-				follow_message_to_connected_nodes(splitted_message, rt)
-			routing_table.display_table()
-			
 
 def send_message_to_directly_connected_node(message, host, port, answer_needed=False):
         toReturn = None
 	try:
 		client_socket = socket.socket()
-        	client_socket.connect((host, port))
-        	client_socket.send(message)
+       		client_socket.connect((host, int(port)))
+       		client_socket.send(message)
 	except:
-		print "Error: Connection to server failed"
+		print "Error: Connection to server failed on "+host+str(port)
 	if answer_needed:
 		try:
 			toReturn = client_socket.recv(1024)
 		except:
 			print "Error: Answer from server was expected :("
         return toReturn
-
-
-def test(rt):
-	var = raw_input("choose a TCP port: ")
-	port = int(var)
-	listen_for_questions(rt, port)
-	listener = ThreadingExample(rt, port)
-        return "Done"
 
 
 

@@ -13,14 +13,18 @@ class RoutingTable:
 	def get_table(self):
 		return self.table
 
-	def get_node_info(id):
+	def get_node_info(self, id):
 		IptoReturn = None
+		self.display_table()
 		PorttoReturn = None
 		for node in self.table:
-			if entry.get_node_id() == id:
-				IptoReturn = entry.get_node_ip()
-				PorttoReturn = entry.get_node_port()
-				break
+			print node.get_node_id()
+			if int(node.get_node_id()) == int(id):
+				print "YES"
+				IptoReturn = node.get_node_ip()
+				PorttoReturn = node.get_node_port()
+		print IptoReturn
+		print PorttoReturn
 		return IptoReturn, PorttoReturn
 
 	def adding_new_node(self):
@@ -33,7 +37,7 @@ class RoutingTable:
 		return None
 
 
-	def find_closest_node_to(id):
+	def find_closest_node_to(self, id):
 		if id >= self.total_host:
                         print "Invalid ID..."
                         return None
@@ -53,6 +57,17 @@ class RoutingTable:
 			print "Direct connected"
 		return closest
 		
-		
 	
+	def add_new_node(self, id, id_closest, ip, port):
+		new_node = Node(id, id_closest, ip, port)
+		self.table.append(new_node)
+		return None
 
+	def get_my_id(self):
+		return self.my_id
+
+	def get_total_host(self):
+		return self.total_host
+	
+	def set_total_host(self, x):
+		self.total_host = x

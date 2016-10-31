@@ -1,9 +1,11 @@
 import threading
 import time
 import socket
+import network
 
 from Node import Node
 from RoutingTable import RoutingTable
+from network import *
 
 class ThreadingExample(object):
     """ Threading example class
@@ -31,12 +33,15 @@ class ThreadingExample(object):
         receiver_socket.bind((host, port))
         receiver_socket.listen(5)
         while True:
-        	print('Listen for incomming tcp messages')
+        	print('Listen for incomming tcp messages on :'+host+":"+str(self.port))
                 socket_obj, source = receiver_socket.accept()
                 print "Connection from ", source
                 source_IP = source[0]
                 message = socket_obj.recv(1024)
-                print message
+                print "I received: "+message
+		reply = take_action_on_message(message, self.routing_table, source_IP)
+		print "I will reply :"+reply
+		socket_obj.sendall(reply)
 
 
 #example = ThreadingExample()

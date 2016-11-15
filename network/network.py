@@ -45,7 +45,7 @@ def send_message_unkown_node(message, ip, port, need_answer=False):
                 port = int(completeanswer.split("::")[2])
                 completeanswer = send_message_to_directly_connected_node(message, ip, port, need_answer)
 	return completeanswer, ip, port
-	
+
 
 def add_node_id_to_rt(node_id, rt):
 	ip, port = rt.get_node_info(rt.find_closest_node_to(node_id))
@@ -54,7 +54,14 @@ def add_node_id_to_rt(node_id, rt):
 		rt.add_new_node(node_id, node_id, ip, port)
 		print "OK!!! adding new entry to rt: "
 		rt.display_table()
-	
+
+def send_ping_to_id(node_id, rt):
+	send_message_to_id(node_id, rt, "PING::"+str(node_id))
+
+def send_message_to_id(node_id, rt, message):
+	ip, port = rt.get_node_info(rt.find_closest_node_to(node_id))
+	answer, ip, port = send_message_unkown_node(message, ip, int(port), True)
+	print "Message received: "+answer+"  |  ip: "+ip+"  port: "+str(port)
 
 def repopulate_rt(rt, desire_size):
 	print "list of nodes wanted: "+str(rt.get_needed_nodes())
@@ -89,7 +96,7 @@ def message_all_nodes(message, rt):
 	for entry in rt.get_table():
 		if int(entry.get_node_id()) != int(rt.get_my_id()):
 			send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()))
-		
+
 def welcome_new_node(rt, ip, port):
 	rt.set_total_host(rt.get_total_host()+1)
 	new_id = str(rt.get_total_host()-1)
@@ -159,7 +166,3 @@ def send_message_to_directly_connected_node(message, host, port, answer_needed=F
 		except:
 			print "Error: Answer from server was expected :("
         return toReturn
-
-
-
-

@@ -3,7 +3,7 @@ import glob
 import os
 import threading
 import network
-
+import time
 from Node import Node
 from p2pMec import RoutingTable
 from tcplisten import ThreadingExample
@@ -45,25 +45,35 @@ def start():
 					port = raw_input("Port: ")
 					rt = join_cluster(ip, port, listenerPort)
 					listener = ThreadingExample(rt, listenerPort)
-					print(" ")
-				elif answer_normal == "2":
-					print "New Cluster!!"
-					rt = new_cluster(listenerPort)
-					listener = ThreadingExample(rt, listenerPort)
-					print(" ")
+					print " "
+					print "Welcome in Cluster !!"
 					while True:
-						message = raw_input("Message: ")
-						ip = raw_input("IP: ")
-						port = raw_input("Port: ")
-						print send_tcp_message(message, ip, int(port), False)
+                        			node = raw_input(" ")
+                        			#message = raw_input("Message: ")
+                        			#answer = send_message_to_id(int(node), rt, message)
+                        			if node != "":
+							answer = send_ping_to_id(int(node), rt)
+                        				print answer
+				elif answer_normal == "2":
+                    			rt = new_cluster(listenerPort)
+					listener = ThreadingExample(rt, listenerPort)
+					print " "
+                    			print "New Cluster!!"
+					while True:
+                        			node = raw_input(" ")
+                        			#message = raw_input("Message: ")
+                        			#answer = send_message_to_id(int(node), rt, message)
+                        			if node != "":
+							answer = send_ping_to_id(int(node), rt)
+                        				print answer
 		elif answer == "2":
 			print("debug_mode...")
 			while True:
                                   message = raw_input("Message: ")
                                   ip = raw_input("IP: ")
                                   port = raw_input("Port: ")
-                                  print send_tcp_message(message, ip, int(port), False)
-	
+                                  send_tcp_message(message, ip, int(port), False)
+
 
 
 print "starting P2P...."

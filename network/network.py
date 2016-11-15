@@ -134,6 +134,15 @@ def take_action_on_message(string, rt, ip):
 		else:
 			ip, port = rt.get_node_info(rt.find_closest_node_to(int(split_message[1])))
 			return "REDIRECT::"+str(ip)+"::"+str(port)
+	elif split_message[0] == "SEARCH":
+		node = int(split_message[1])
+		hash = split_message[2]
+	elif split_message[0] == "GIVEME":
+		node = int(split_message[1])
+		hash = split_message[2]
+	elif split_message[0] == "COMEGETIT":
+		node = int(split_message[1])
+		hash = split_message[2]
 	return "No_answer_needed"
 
 

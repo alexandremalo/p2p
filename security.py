@@ -65,6 +65,30 @@ def lookup_public_key(node_id):
 		return lookup_public_key(node_id)
 
 
+def receivefile(self, ip, port, data):
+    f = open(data,"wb")
+    l = 1
+    l = socket.recv(1024)
+    while l:
+        print(l)
+        f.write(l)
+        l = self.socket.recv(1024)
+        if l == str.encode("ENDOFKEY"):
+            break
+    f.close()
+
+def sendfile(self,conn,name):
+    try:
+        f = open(name,"rb")
+        l = f.read(1024)
+        while l:
+            conn.send(l)
+            l = f.read(1024)
+        return True
+    except:
+        print("File not found!!")
+        return False
+
 msg = "hello"
 enc_msg = encrypt_message_for_node(1,msg)
 print(enc_msg)

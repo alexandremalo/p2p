@@ -3,11 +3,11 @@ Salut, ici on peut jaser du travail a faire:
 
 Tâche Farid:
 
--[ ] FileLookup and Hashing inventory
--[ ] Download Keys from (ip:port)
--[ ] GIVE N GET keys
--[ ] Cleanup keys, cleanup hash
+-[X] FileLookup and Hashing inventory
+-[X] Download Keys from (ip:port)
+-[X] GIVE N GET keys
 -[ ] file encryption/decryption
+-[ ] Cleanup keys, cleanup hash
 
 
 Tâche Alex:

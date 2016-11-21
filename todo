@@ -3,14 +3,22 @@ Salut, ici on peut jaser du travail a faire:
 
 Tâche Farid:
 
-Test de communication sécurisé dans security.py
-STP ne pas modifier networking.py et filesharing.py
+-[ ] FileLookup and Hashing inventory
+-[ ] Download Keys from (ip:port)
+-[ ] GIVE N GET keys
+-[ ] Cleanup keys, cleanup hash
+-[ ] file encryption/decryption
+
 
 Tâche Alex:
 
-Test de fonctionnement réseau.
-Je vais m'occuper de tout ce qui est networking sans encryption.
-Je fais des modifications dans networking.py et network/*
+-[ ] Leaving N Crashing nodes
+-[ ] Messages to implement:
+-[ ] GETKEYS calls
+-[ ] SENDKEYS call
+-[ ] SEARCHFILE
+-[ ] IHAVEFILE
+-[ ] DOWNLOADFILE
 
 
 

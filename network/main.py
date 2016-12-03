@@ -7,6 +7,7 @@ import time
 from Node import Node
 from p2pMec import RoutingTable
 from tcplisten import ThreadingExample
+from diag import diagnostic
 from network import *
 
 def send_tcp_message(message, host, port, answer_needed=False):
@@ -45,6 +46,7 @@ def start():
 					port = raw_input("Port: ")
 					rt = join_cluster(ip, port, listenerPort)
 					listener = ThreadingExample(rt, listenerPort)
+					pinger = diagnostic(rt)
 					print " "
 					print "Welcome in Cluster !!"
 					while True:
@@ -57,6 +59,7 @@ def start():
 				elif answer_normal == "2":
                     			rt = new_cluster(listenerPort)
 					listener = ThreadingExample(rt, listenerPort)
+					pinger = diagnostic(rt)
 					print " "
                     			print "New Cluster!!"
 					while True:

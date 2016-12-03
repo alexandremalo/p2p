@@ -52,8 +52,8 @@ def add_node_id_to_rt(node_id, rt):
 	answer, ip, port = send_message_unkown_node("PING::"+str(node_id), ip, int(port), True)
 	if answer.split("::")[0] == "PONG":
 		rt.add_new_node(node_id, node_id, ip, port)
-		print "OK!!! adding new entry to rt: "
-		rt.display_table()
+		#print "OK!!! adding new entry to rt: "
+		#rt.display_table()
 
 def send_ping_to_id(node_id, rt):
 	send_message_to_id(node_id, rt, "PING::"+str(node_id))
@@ -69,13 +69,13 @@ def repopulate_rt(rt, desire_size):
 		found = False
 		for entry in rt.get_table():
 			if int(entry.get_node_id()) == int(id):
-				print "already exist:"
+				#print "already exist:"
 				found = True
 		if found == False:
 			add_node_id_to_rt(id, rt)
-			print "success to add id: "+str(id)
-	print "new table after addons: "
-	rt.display_table()
+			#print "success to add id: "+str(id)
+	#print "new table after addons: "
+	#rt.display_table()
 	for entry in rt.get_table():
 		entry_needed = False
 		for id in rt.get_needed_nodes():
@@ -83,8 +83,8 @@ def repopulate_rt(rt, desire_size):
 				entry_needed = True
 		if entry_needed == False:
 			rt.get_table().remove(entry)
-	print "after_cleanup: "
-	rt.display_table()
+	#print "Updated RT: "
+	#rt.display_table()
 
 
 def announce_myself(rt):
@@ -122,12 +122,12 @@ def take_action_on_message(string, rt, ip):
 			return "REDIRECT::"+str(ip)+"::"+str(port)
 	elif split_message[0] == "JOINED":
 		if int(split_message[1]) +1 > int(rt.get_total_host()):
-			print "Need to update my table"
+			#print "Need to update my table"
 			rt.adding_new_node()
 			repopulate_rt(rt, int(split_message[1])+1)
 			message_all_nodes(string, rt)
-		else:
-			print "Already know about that..."
+		#else:
+			#print "Already know about that..."
 	elif split_message[0] == "PING":
 		if rt.get_my_id() == int(split_message[1]):
 			return "PONG"
@@ -146,18 +146,21 @@ def take_action_on_message(string, rt, ip):
 	return "No_answer_needed"
 
 
-def ping_directly_connected_nodes():
-	message = "PING::0::0::0"
-	list = get_directly_connected_host(rt)
-	dead_nodes = []
-        for entry in list:
-                answer = send_message_to_directly_connected_node(message, entry.get_ip(), 5001, True)
-		if answer.split("::")[0] == "PONG":
-			print "stil up"
-		else:
-			dead_nodes.append(entry)
+def ping_directly_connected_nodes(rt):
+        dead_nodes = []
+        for entry in rt.get_table():
+                if int(entry.get_node_id()) != int(rt.get_my_id()):
+			message = "PING::"+str(entry.get_node_id())
+                        print "PING..."
+			answer = send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()), True)
+			if answer.split("::")[0] == "PONG":
+				print "still up"
+			else:
+				print "dead node!!!!!!!!"
+				dead_nodes.append(entry)
 	for entry in dead_nodes:
-		declare_dead_node(entry.get_node_id())
+		print "declaring dead node..."
+		#declare_dead_node(entry.get_node_id())
 	return None
 
 

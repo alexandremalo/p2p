@@ -55,7 +55,7 @@ class RoutingTable:
                 i = 0
                 while 2**i <= distance:
                         mat_closest = (2**i + self.my_id) % self.total_host
-			print "Mat_Closest: "+str(mat_closest)
+			#print "Mat_Closest: "+str(mat_closest)
 			exists = False
 			best_choice = distance
 			for entry in self.table:
@@ -72,7 +72,7 @@ class RoutingTable:
 			#else:
 			#	best_available_closest = real_closest
                         i += 1
-		print "BAC: "+str(best_available_closest)
+		#print "BAC: "+str(best_available_closest)
 		return best_available_closest
 
 	def get_needed_nodes(self):

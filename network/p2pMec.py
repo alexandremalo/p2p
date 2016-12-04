@@ -35,7 +35,7 @@ class RoutingTable:
 		print "table:"
 		print "My_id: "+str(self.my_id)
 		for entry in self.table:
-			print entry.get_node_id(), entry.get_closest_to(), entry.get_node_ip(), entry.get_node_port()
+			print entry.get_node_id(), entry.get_node_ip(), entry.get_node_port()
 		return None
 
 
@@ -91,6 +91,9 @@ class RoutingTable:
 
 	def get_my_id(self):
 		return self.my_id
+
+	def set_my_id(self, id):
+		self.my_id = id
 
 	def get_my_port(self):
 		return self.my_port

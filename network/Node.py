@@ -14,6 +14,9 @@ class Node:
 	def get_node_ip(self):
 		return self.ip
 
+	def set_node_id(self, id):
+		self.node_id = int(id)
+
 	def get_node_port(self):
 		return self.port
 		

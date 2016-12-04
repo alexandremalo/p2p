@@ -32,12 +32,12 @@ class ThreadingExample(object):
         receiver_socket.bind((host, port))
         receiver_socket.listen(100)
         while True:
-        	print('Listen for incomming tcp messages on :'+host+":"+str(self.port))
+        	#print('Listen for incomming tcp messages on :'+host+":"+str(self.port))
                 socket_obj, source = receiver_socket.accept()
-                print "Connection from ", source
+                #print "Connection from ", source
                 source_IP = source[0]
                 message = socket_obj.recv(1024)
-                print "I received: "+message
+                #print "I received: "+message
 		#reply = take_action_on_message(message, self.routing_table, source_IP)
 		#if reply != "No_answer_needed":
 			#print "I will reply :"+reply
@@ -48,7 +48,7 @@ class ThreadingExample(object):
     def take_action(self, message, rt, source_IP, socket_obj):
                 reply = take_action_on_message(message, self.routing_table, source_IP)
                 if reply != "No_answer_needed":
-                        print "I will reply :"+reply
+                        #print "I will reply :"+reply
                         socket_obj.sendall(reply)
 
 

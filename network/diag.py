@@ -24,7 +24,7 @@ class diagnostic(object):
     def run(self):
         """ Method that runs forever """
         while True:
-		time.sleep(1)
+		time.sleep(10)
 		take_action_thread = threading.Thread(target=self.take_action, args=())
                 take_action_thread.start()
 

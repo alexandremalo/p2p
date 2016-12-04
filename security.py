@@ -3,8 +3,9 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto import Random
 from base64 import b64decode
 from base64 import b64encode
-import os.path
 from Crypto.Hash import SHA256
+import os.path
+import socket
 
 def encrypt_message(message, my_privatekey, node_publickey):
 	sha = SHA256.new(message)
@@ -65,33 +66,32 @@ def lookup_public_key(node_id):
 		return lookup_public_key(node_id)
 
 
-def receivefile(self, ip, port, data):
-    f = open(data,"wb")
+def receivefile(self, ip, port, filename):
+    f = open(filename,"wb")
     l = 1
+	socket = socket.socket()
+	socket.bind(('',port))
     l = socket.recv(1024)
     while l:
-        print(l)
         f.write(l)
-        l = self.socket.recv(1024)
-        if l == str.encode("ENDOFKEY"):
+        l = socket.recv(1024)
+        if l == str.encode("ENDOFP2P"):
             break
     f.close()
 
-def sendfile(self,conn,name):
+def sendfile(self,ip,port,name):
     try:
+		conn = socket.socket()
+		conn.connect((ip,port))
         f = open(name,"rb")
         l = f.read(1024)
         while l:
             conn.send(l)
             l = f.read(1024)
-        return True
+        conn.send(str.encode("ENDOFP2P"))
+		return True
     except:
         print("File not found!!")
         return False
 
-msg = "hello"
-enc_msg = encrypt_message_for_node(1,msg)
-print(enc_msg)
-dec_msg = decrypt_message_from_node(1,enc_msg)
-print(dec_msg)
 

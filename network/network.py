@@ -72,6 +72,7 @@ def send_message_to_id(node_id, rt, message):
 	except:
 		print "Invalid answer"
 
+
 def repopulate_rt(rt, desire_size):
 	print "list of nodes wanted: "+str(rt.get_needed_nodes())
 	for id in rt.get_needed_nodes():
@@ -192,10 +193,11 @@ def declare_dead_node(rt, node, ip, port, size):
 			rt.get_table().remove(entry)
 			print "Found for deletion ..."
 			rt.display_table()
-	if found or size < int(rt.get_total_host()):
+	if found or int(size) < int(rt.get_total_host()):
 		for entry in rt.get_table():
 			if int(entry.get_node_id()) > int(node):
 				entry.set_node_id(int(entry.get_node_id())-1)
+				print "decrement node in table ...."
 		if found:
 			message_all_nodes("DEAD::"+str(node)+"::"+ip+"::"+str(port)+"::"+str(int(rt.get_total_host())-1), rt)
 		if int(node) < int(rt.get_my_id()):

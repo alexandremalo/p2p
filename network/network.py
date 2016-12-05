@@ -33,8 +33,8 @@ def join_cluster(ip, port, my_port):
 	announce_myself(rt)
 	return rt
 
-def update_rt_for_new_node(node_ip, rt, ip, port):
-		return None
+#def update_rt_for_new_node(node_ip, rt, ip, port):
+#		return None
 
 
 def send_message_unkown_node(message, ip, port, need_answer=False):
@@ -46,7 +46,12 @@ def send_message_unkown_node(message, ip, port, need_answer=False):
                 	ip = completeanswer.split("::")[1]
                 	port = int(completeanswer.split("::")[2])
                 	completeanswer = send_message_to_directly_connected_node(message, ip, port, need_answer)
-		return completeanswer, ip, port
+			if completeanswer == None:
+				completeanswer = "None::None"
+		if completeanswer != "None::None":
+			return completeanswer, ip, port
+		else:
+			return None, ip, port
 	else:
 		print "Error invalid answer from directly connected node ...."
 		return None, None, None
@@ -55,11 +60,32 @@ def send_message_unkown_node(message, ip, port, need_answer=False):
 def add_node_id_to_rt(node_id, rt):
 	ip, port = rt.get_node_info(rt.find_closest_node_to(node_id))
 	if ip != None and port != None:
-		answer, ip, port = send_message_unkown_node("PING::"+str(node_id), ip, int(port), True)
-		if answer.split("::")[0] == "PONG":
-			rt.add_new_node(node_id, node_id, ip, port)
+		answer, ip, port = send_message_unkown_node("FIND::"+str(node_id), ip, int(port), True)
+		if answer != None:
+			if answer.split("::")[0] == "FOUND":
+				rt.add_new_node(node_id, node_id, ip, port)
 			#print "OK!!! adding new entry to rt: "
 			#rt.display_table()
+
+def ping_direct_node(node_id, node_ip, node_port, rt):
+	change = False
+	up = False
+	answer, ip, port = send_message_unkown_node("PING::"+str(node_id), node_ip, int(node_port), True)
+	if ip != None and port != None:
+		if ip != node_ip or int(node_port) != int(port):
+			up = True
+	if answer != None:
+		if answer.split("::")[0] == "PONG":
+			if ip != node_ip or int(port) != int(node_port):
+				change = True
+				for entry in rt.get_table():
+					if int(entry.get_node_id()) == int(node_id) and entry.get_node_ip() == node_ip and int(entry.get_node_port()) == int(node_port):
+						entry.set_node_ip(ip)
+						entry.set_node_port(int(port))
+						print "Learning node change during Diag... new RT:"
+						rt.display_table()
+		up = True 
+	return up
 
 def send_ping_to_id(node_id, rt):
 	send_message_to_id(node_id, rt, "PING::"+str(node_id))
@@ -138,12 +164,18 @@ def take_action_on_message(string, rt, ip):
 			message_all_nodes(string, rt)
 		#else:
 			#print "Already know about that..."
-	elif split_message[0] == "PING":
+	elif split_message[0] == "FIND":
 		if rt.get_my_id() == int(split_message[1]):
-			return "PONG"
+			return "FOUND"
 		else:
 			ip, port = rt.get_node_info(rt.find_closest_node_to(int(split_message[1])))
 			return "REDIRECT::"+str(ip)+"::"+str(port)
+	elif split_message[0] == "PING":
+                if rt.get_my_id() == int(split_message[1]):
+                        return "PONG"
+                else:
+                        ip, port = rt.get_node_info(rt.find_closest_node_to(int(split_message[1])))
+                        return "REDIRECT::"+str(ip)+"::"+str(port)
 	elif split_message[0] == "SEARCH":
 		node = int(split_message[1])
 		hash = split_message[2]
@@ -165,14 +197,15 @@ def evaluate_dead_node(rt, node, ip, port, size):
 	declare_dead_node(rt, node, ip, port, size)
 
 def ping_directly_connected_nodes(rt):
-	print "MY ID IS: ", rt.get_my_id()
+	#print "MY ID IS: ", rt.get_my_id()
         for entry in rt.get_table():
                 if int(entry.get_node_id()) != int(rt.get_my_id()):
 			message = "PING::"+str(entry.get_node_id())
                         print "PING..."
-			answer = send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()), True)
-			if answer != None:
-				print "still up"
+			#answer = send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()), True)
+			answer2 = ping_direct_node(int(entry.get_node_id()), entry.get_node_ip(), int(entry.get_node_port()), rt)
+			if answer2:
+				print "Not Dead yet..."
 			else:
 				count = 0
 				while count > 0 and answer == None:
@@ -181,11 +214,13 @@ def ping_directly_connected_nodes(rt):
 					count -= 1
 				if count == 0:
 					declare_dead_node(rt, entry.get_node_id(), entry.get_node_ip(), entry.get_node_port(), int(rt.get_total_host())-1)
+	#fighting racing conditions:
+	repopulate_rt(rt, rt.get_total_host())
 	return None
 
 def declare_dead_node(rt, node, ip, port, size):
 	found = False
-	print "Looking for deletion...."
+	#print "Looking for deletion...."
 	rt.display_table()
 	for entry in rt.get_table():
                 if int(entry.get_node_id()) == int(node) and ip == entry.get_node_ip() and int(port) == int(entry.get_node_port()):

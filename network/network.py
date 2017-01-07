@@ -182,9 +182,18 @@ def take_action_on_message(string, rt, ip):
 	elif split_message[0] == "GIVEME":
 		node = int(split_message[1])
 		hash = split_message[2]
+		file_search = findFile(hash)
+		if file_search == False:
+			message_all_nodes(string)
+			return "DISPACHED"
+		port = random_port()
+		send_file(file_search,port)
+		return "COMEGETIT::"+str(my_ip())+str(port)
+		#TODO : my ip and random port AND use function from parent directory : these two functions are in filehelper
 	elif split_message[0] == "COMEGETIT":
-		node = int(split_message[1])
-		hash = split_message[2]
+		ip = int(split_message[1])
+		port = split_message[2]
+		receive_file(ip,port)
 	elif split_message[0] == "DEAD":
 		node = int(split_message[1])
 		ip = split_message[2]

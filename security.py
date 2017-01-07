@@ -66,7 +66,7 @@ def lookup_public_key(node_id):
 		return lookup_public_key(node_id)
 
 
-def receivefile(self, ip, port, filename):
+def receivefile(ip, port, filename):
     f = open(filename,"wb")
     l = 1
 	socket = socket.socket()
@@ -79,7 +79,7 @@ def receivefile(self, ip, port, filename):
             break
     f.close()
 
-def sendfile(self,ip,port,name):
+def sendfile(ip, port, name):
     try:
 		conn = socket.socket()
 		conn.connect((ip,port))

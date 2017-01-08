@@ -247,6 +247,7 @@ def declare_dead_node(rt, node, ip, port, size):
 		if int(node) < int(rt.get_my_id()):
 			rt.set_my_id(int(rt.get_my_id())-1)
 		rt.set_total_host(int(rt.get_total_host())-1)
+		time.sleep(5)
 		repopulate_rt(rt, rt.get_total_host())
 
 

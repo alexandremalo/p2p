@@ -50,7 +50,7 @@ class RoutingTable:
                 distance = id - self.my_id
                 if distance < 0:
                         distance = self.total_host + distance
-                        print "passing by 0"
+                        #print "passing by 0"
                 #print distance
                 i = 0
                 while 2**i <= distance:

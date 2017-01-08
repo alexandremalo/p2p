@@ -6,6 +6,7 @@ class Node:
 		self.ip = ip
 		self.port = port
 		self.closest_to = closest_to
+		self.status = True
 		Node.nodeCount += 1
 
 	def get_node_id(self):
@@ -23,6 +24,11 @@ class Node:
 		return self.port
 	def set_node_port(self, port):
 		self.port = int(port)
-		
+
 	def get_closest_to(self):
 		return self.closest_to
+
+	def get_status(self):
+		return self.status
+	def set_status(self, state):
+		self.status = state

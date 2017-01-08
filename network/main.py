@@ -4,6 +4,13 @@ import os
 import threading
 import network
 import time
+
+import sys
+import os.path
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+
+import filehelper
 from Node import Node
 from p2pMec import RoutingTable
 from tcplisten import ThreadingExample

@@ -1,5 +1,6 @@
 import hashlib
 import os
+import socket
 
 def hashFile(filename):
 	hasher = hashlib.md5()
@@ -32,30 +33,37 @@ def refreshIndex():
 
 def receive_file(ip, port):
     l = 1
-    socket = socket.socket()
-    socket.connect((ip,port))
-    l = socket.recv(1024)
-    f = open(l,"wb")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((ip,port))
+    sock.send("READY");
+    l = sock.recv(1024)
+    f = open("Downloads/"+l,"wb")
     while l:
-        f.write(l)
-        l = socket.recv(1024)
+        l = sock.recv(1024)
         if l == str.encode("ENDOFP2P"):
             break
+        f.write(l)
     f.close()
+    sock.close()
 
 def send_file(name, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('',port))
+    print("Waiting for connection ... ")
+    sock.listen(1)
+    conn, adr = sock.accept()
+    print(adr)
+    m = conn.recv(1024)
+    if m == "READY":
+        conn.send(name)
     try:
-        conn = socket.socket()
-        conn.bind(('',port))
-		m = conn.recv(1024)
-		if m == "READY":
-			conn.send(name)
         f = open(name,"rb")
         l = f.read(1024)
         while l:
             conn.send(l)
             l = f.read(1024)
         conn.send(str.encode("ENDOFP2P"))
+        conn.close()
         return True
     except:
         print("File not found!!")

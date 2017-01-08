@@ -204,7 +204,6 @@ def take_action_on_message(string, rt, ip):
 		send_file(file_search,port)
 		return "COMEGETIT::"+str(my_ip())+str(port)
 		#TODO : my ip and random port AND use function from parent directory : these two functions are in filehelper
-		
 	elif split_message[0] == "COMEGETIT":
 		ip = int(split_message[1])
 		port = split_message[2]

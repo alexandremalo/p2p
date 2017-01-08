@@ -1,11 +1,14 @@
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5 
 from Crypto import Random
+from Crypto.Hash import SHA256
 from base64 import b64decode
 from base64 import b64encode
-from Crypto.Hash import SHA256
+import os
 import os.path
 import socket
+import Crypto.Util.number
+
 
 def encrypt_message(message, my_privatekey, node_publickey):
 	sha = SHA256.new(message)
@@ -56,7 +59,7 @@ def writefile(name,obj):
 	f.close()
 
 #TODO : change this function to support lookup for node's public key using routing table
-def lookup_public_key(node_id):
+def lookup_public_key(node_id=None):
 	if os.path.isfile('keys/public.key'):
 		RSA_key = readfile('keys/public.key')
 		RSA_key = RSA.importKey(RSA_key)
@@ -64,34 +67,4 @@ def lookup_public_key(node_id):
 	else:
 		getPrivate()
 		return lookup_public_key(node_id)
-
-
-def receivefile(ip, port, filename):
-    f = open(filename,"wb")
-    l = 1
-	socket = socket.socket()
-	socket.bind(('',port))
-    l = socket.recv(1024)
-    while l:
-        f.write(l)
-        l = socket.recv(1024)
-        if l == str.encode("ENDOFP2P"):
-            break
-    f.close()
-
-def sendfile(ip, port, name):
-    try:
-		conn = socket.socket()
-		conn.connect((ip,port))
-        f = open(name,"rb")
-        l = f.read(1024)
-        while l:
-            conn.send(l)
-            l = f.read(1024)
-        conn.send(str.encode("ENDOFP2P"))
-		return True
-    except:
-        print("File not found!!")
-        return False
-
 

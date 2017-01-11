@@ -195,7 +195,7 @@ def take_action_on_message(string, rt, ip):
 		hash = split_message[2]
 		file_search = fh.findFile(hash)
 		if file_search == False:
-			message_all_nodes(string)
+			#message_all_nodes(string)
 			return "DISPACHED"
 		port = get_free_tcp_port()
 		t = threading.Thread(target=sf.send_file,args=(file_search,port,rt.get_my_id()))
@@ -279,5 +279,33 @@ def send_message_to_directly_connected_node(message, host, port, answer_needed=F
         return toReturn
 
 def down_file(rt,hash):
-	message = "SEARCH::"+str(rt.get_my_id())+"::"+hash
-	message_all_nodes(message, rt)
+	ttlmax = rt.get_total_host()
+	ttl = 1
+	found = False
+	ip = None
+	port = None
+	while ttl <= ttlmax and not found:
+		message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+"::"+str(ttl)
+		#message_all_nodes(message, rt)
+		small_found = False
+		for entry in rt.get_table():
+			answer = send_message_to_directly_connected_node(message, entry.get_node_ip(), entry.get_node_port(), True)
+			if answer != None:
+				if answer[0] == "COMEGETIT::hasH+port+false":
+					small_found = True
+					ip = answer[1]
+					port = answer[2]
+			if small_found:
+				found = True
+				break
+		tll += 1
+	if ip != None and port != None:
+		##FARID ICI
+
+
+def down_down_file(rt,hash,ttl)
+        message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+str(ttl-1)
+        message_all_nodes(message, rt)
+        big_found = False
+        for entry in rt.get_table():
+                small

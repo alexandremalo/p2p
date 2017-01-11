@@ -190,7 +190,7 @@ def take_action_on_message(string, rt, ip):
 			message_all_nodes(string)
 			return "DISPACHED"
 		port = random_port()
-		t = threading.Thread(target=sf.send_file,args=(file_search,port))
+		t = threading.Thread(target=sf.send_file,args=(file_search,port,rt.get_my_id()))
 		t.start()
 		return "COMEGETIT::"+str(my_ip())+"::"+str(port)+"::"+file_search
 	elif split_message[0] == "COMEGETIT":

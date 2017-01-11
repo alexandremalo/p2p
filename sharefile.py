@@ -2,9 +2,9 @@ import filehelper as fh
 import security as sec
 import os
 import socket
+import os.path
 
-
-def send_file(filename, port):
+def send_file(filename, port, me):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.bind(('',port))
 	sock.listen(1)
@@ -14,7 +14,9 @@ def send_file(filename, port):
 		sock.close()
 		return None
 	fh.receive_file(None,None,sock=conn,node=m)
-	fh.send_file(filename,None,sec.getPrivate(),sec.lookup_public_key(node),conn)
+	conn.send(str(me))
+	fh.send_file("keys/public.key",None,sock=conn)
+	fh.send_file(filename,None,sec.getPrivate(),sec.lookup_public_key(m),conn)
 	conn.close()
 	sock.close()
 	os.remove("Downloads/"+str(m))
@@ -22,11 +24,14 @@ def send_file(filename, port):
 def receive_file(ip,port,filename,me):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((ip,port))
-	if fh.is_open(filename):
+	if os.path.isfile("Downloads/"+filename) and fh.is_open("Downloads/"+filename):
 		sock.send("KILL")
 		return None
-	sock.send(me)
+	sock.send(str(me))
 	fh.send_file("keys/public.key",None,sock=sock)
-	fh.receive_file(None,None,sec.getPrivate(),sec.lookup_public_key(),sock=sock)
+	he = sock.recv(1024)
+	fh.receive_file(None,None,sock=sock,node=he)
+	fh.receive_file(None,None,sec.getPrivate(),sec.lookup_public_key(he),sock=sock)
 	sock.close()
+	os.remove("Downloads/"+str(he))
 	fh.refreshIndex()

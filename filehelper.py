@@ -46,13 +46,15 @@ def refreshIndex():
 
 def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = None):
     l = 1
-    cl = None
+    cl = False
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((ip,port))
-        cl = 1
-    sock.send("READY");
+        cl = True
+    sock.send("READY")
+    print "Sent " 
     l = sock.recv(1024)
+    print "Received " + l
     if node:
         l = str(node)
     f = open("Downloads/"+l,"wb")
@@ -61,30 +63,32 @@ def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = N
         if my_private:
             tup = ast.literal_eval(str(l))
             l = sec.decrypt_message(tup,my_private,node_pub)
-        if not l:
-            f.close()
-            sock.close()
-            print("Message Altered !!!")
-            break;
-        if l == str.encode("ENDOFP2P"):
+            if not l:
+                f.close()
+                sock.close()
+                print("Message Altered !!!")
+                break;
+        if l == "ENDOFP2P":
             break
+        sock.send("\r\n\r\n")
         f.write(l)
     f.close()
     if cl :
         sock.close()
 
 def send_file(name, port, my_private=None, node_pub=None, sock=None):
-    cl = None
+    cl = False
     conn = sock
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('',port))
         print("Waiting for connection ... ")
-        cl = 1
+        cl = True
     	sock.listen(1)
     	conn, adr = sock.accept()
     	print(adr)
     m = conn.recv(1024)
+    print m
     if m == "READY":
         conn.send(name)
     try:
@@ -100,8 +104,9 @@ def send_file(name, port, my_private=None, node_pub=None, sock=None):
         else:
             enc = sec.encrypt_message(l,my_private,node_pub)
             conn.send(str(enc))
+        conn.recv(1024)
         l = f.read(1024)
-    end=str.encode("ENDOFP2P")
+    end="ENDOFP2P"
     if my_private:
         end = sec.encrypt_message(end,my_private,node_pub)
         conn.send(str(end))

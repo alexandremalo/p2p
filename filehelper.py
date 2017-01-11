@@ -30,17 +30,31 @@ def findFile(hashcode):
 	return False
 
 
+def is_open(file_name):
+    if os.path.exists(file_name):
+        try:
+            os.rename(file_name, file_name) #can't rename an open file so an error will be thrown
+            return False
+        except:
+            return True
+    raise NameError
+
 def refreshIndex():
 	afile = open("files.idx","w")
 	for filename in os.listdir("Downloads"):
 		afile.write(hashFile(filename)+" "+filename)
 
-def receive_file(ip, port, my_private=None, node_pub=None):
+def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = None):
     l = 1
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((ip,port))
+	cl = None
+    if not sock:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip,port))
+        cl = 1
     sock.send("READY");
     l = sock.recv(1024)
+    if Node:
+        l = node + l[6:]
     f = open("Downloads/"+l,"wb")
     while l:
         l = sock.recv(1024)
@@ -56,15 +70,20 @@ def receive_file(ip, port, my_private=None, node_pub=None):
             break
         f.write(l)
     f.close()
-    sock.close()
+    if cl :
+        sock.close()
 
-def send_file(name, port, my_private=None, node_pub=None):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('',port))
-    print("Waiting for connection ... ")
-    sock.listen(1)
-    conn, adr = sock.accept()
-    print(adr)
+def send_file(name, port, my_private=None, node_pub=None, sock=None):
+    cl = None
+	conn = sock
+    if not sock:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('',port))
+        print("Waiting for connection ... ")
+        cl = 1
+    	sock.listen(1)
+    	conn, adr = sock.accept()
+    	print(adr)
     m = conn.recv(1024)
     if m == "READY":
         conn.send(name)
@@ -89,5 +108,7 @@ def send_file(name, port, my_private=None, node_pub=None):
     else:
         conn.send(end)
     conn.close()
+    if cl :
+        sock.close()
     return True
 

@@ -8,7 +8,7 @@ import sys
 import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-
+import sharefile as sf
 import filehelper
 
 from Node import Node
@@ -101,7 +101,6 @@ def send_message_to_id(node_id, rt, message):
 	ip, port = rt.get_node_info(rt.find_closest_node_to(node_id))
 	try:
 		answer, ip, port = send_message_unkown_node(message, ip, int(port), True)
-		#print "Message received: "+answer+"  |  ip: "+ip+"  port: "+str(port)
 	except:
 		print "Invalid answer"
 
@@ -187,27 +186,19 @@ def take_action_on_message(string, rt, ip):
 		node = int(split_message[1])
 		hash = split_message[2]
 		file_search = findFile(hash)
-                if file_search == False:
-                        message_all_nodes(string)
-                        return "DISPACHED"
-                port = random_port()
-                send_file(file_search,port)
-                return "COMEGETIT::"+str(my_ip())+str(port)
-	elif split_message[0] == "GIVEME":
-		node = int(split_message[1])
-		hash = split_message[2]
-		file_search = findFile(hash)
 		if file_search == False:
 			message_all_nodes(string)
 			return "DISPACHED"
 		port = random_port()
-		send_file(file_search,port)
-		return "COMEGETIT::"+str(my_ip())+str(port)
-		#TODO : my ip and random port AND use function from parent directory : these two functions are in filehelper
+		t = threading.Thread(target=sf.send_file,args=(file_search,port,node))
+		t.start()
+		return "COMEGETIT::"+str(my_ip())+"::"+str(port)+"::"+file_search
 	elif split_message[0] == "COMEGETIT":
 		ip = int(split_message[1])
 		port = split_message[2]
-		receive_file(ip,port)
+		filename = split_message[3]
+		t = thrading.Thread(target=sf.receive_file, args=(ip,port,filename,rt.get_my_id()))
+		t.start()
 	elif split_message[0] == "DEAD":
 		node = int(split_message[1])
 		ip = split_message[2]
@@ -220,12 +211,10 @@ def evaluate_dead_node(rt, node, ip, port, size):
 	declare_dead_node(rt, node, ip, port, size)
 
 def ping_directly_connected_nodes(rt):
-	#print "MY ID IS: ", rt.get_my_id()
         for entry in rt.get_table():
                 if int(entry.get_node_id()) != int(rt.get_my_id()):
 			message = "PING::"+str(entry.get_node_id())
                         print "PING..."
-			#answer = send_message_to_directly_connected_node(message, entry.get_node_ip(), int(entry.get_node_port()), True)
 			answer2 = ping_direct_node(int(entry.get_node_id()), entry.get_node_ip(), int(entry.get_node_port()), rt)
 			if answer2:
 				print "Not Dead yet..."

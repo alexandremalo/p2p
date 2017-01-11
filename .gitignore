@@ -3,3 +3,4 @@ download/*
 shared/*
 keys/*
 *.swp
+*.key

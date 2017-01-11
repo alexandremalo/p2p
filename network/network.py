@@ -9,10 +9,11 @@ import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 import sharefile as sf
-import filehelper
+import filehelper as fh
 
 from Node import Node
 from p2pMec import RoutingTable
+
 
 def new_cluster(my_port):
 	rt = RoutingTable(0, my_port, 1)
@@ -154,6 +155,13 @@ def welcome_new_node(rt, ip, port):
 	rt.display_table()
 	return basic_reply+routing_table_dump
 
+def get_free_tcp_port():
+    tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcp.bind(('', 0))
+    addr, port = tcp.getsockname()
+    tcp.close()
+    return port
+
 def take_action_on_message(string, rt, ip):
 	split_message = string.split("::")
 	if split_message[0] == "JOIN":
@@ -185,18 +193,19 @@ def take_action_on_message(string, rt, ip):
 	elif split_message[0] == "SEARCH":
 		node = int(split_message[1])
 		hash = split_message[2]
-		file_search = findFile(hash)
+		file_search = fh.findFile(hash)
 		if file_search == False:
 			message_all_nodes(string)
 			return "DISPACHED"
-		port = random_port()
+		port = get_free_tcp_port()
 		t = threading.Thread(target=sf.send_file,args=(file_search,port,rt.get_my_id()))
+		print "KIIIILLLEEEEEEEEED " + str(port))
 		t.start()
-		return "COMEGETIT::"+str(my_ip())+"::"+str(port)+"::"+file_search
+		return "COMEGETIT::"+str(port)+"::"+file_search
 	elif split_message[0] == "COMEGETIT":
-		ip = int(split_message[1])
-		port = split_message[2]
-		filename = split_message[3]
+		print "KIIIILLLEEEEEEEEED " + ip
+		port = split_message[1]
+		filename = split_message[2]
 		t = threading.Thread(target=sf.receive_file, args=(ip,port,filename,rt.get_my_id()))
 		t.start()
 	elif split_message[0] == "DEAD":
@@ -268,3 +277,7 @@ def send_message_to_directly_connected_node(message, host, port, answer_needed=F
 		except:
 			print "Error: Answer from server was expected :("
         return toReturn
+
+def down_file(rt,hash):
+	message = "SEARCH::"+str(rt.get_my_id())+"::"+hash
+	message_all_nodes(message, rt)

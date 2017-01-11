@@ -32,6 +32,22 @@ def send_tcp_message(message, host, port, answer_needed=False):
                         print "Error: Answer from server was expected :("
         return toReturn
 
+
+def menu_down(me):
+	while True:
+		print("What do you want ")
+		print("1 - Download file ")
+		print("2 - Ping node ")
+		c = int(raw_input("Choice : "))
+		if c == 2:
+			node = raw_input("Node id :")
+			if node != "":
+				answer = send_ping_to_id(int(node), rt)
+			print(answer)
+		elif c == 1:
+			hash = raw_input("Hash :")
+			down_file(me,hash)
+
 def start():
 	answer = " "
 	while answer != "3":
@@ -56,13 +72,7 @@ def start():
 					pinger = diagnostic(rt)
 					print " "
 					print "Welcome in Cluster !!"
-					while True:
-                        			node = raw_input(" ")
-                        			#message = raw_input("Message: ")
-                        			#answer = send_message_to_id(int(node), rt, message)
-                        			if node != "":
-							answer = send_ping_to_id(int(node), rt)
-                        				print answer
+					menu_down(rt)
 				elif answer_normal == "2":
                     			rt = new_cluster(listenerPort)
 					listener = ThreadingExample(rt, listenerPort)

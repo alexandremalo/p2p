@@ -6,8 +6,11 @@ import security as sec
 from base64 import b64encode as base64encode
 from base64 import b64decode as base64decode
 
+ROOT = os.path.dirname(os.path.realpath(__file__))
+
 def hashFile(filename):
 	hasher = hashlib.md5()
+	filename = ROOT + "/" + filename
 	with open(filename,'rb') as afile:
 		buf = afile.read()
 		hasher.update(buf)
@@ -15,13 +18,13 @@ def hashFile(filename):
 
 
 def updateIndex(filename):
-	with open("files.idx","a") as afile:
+	with open(ROOT+"/files.idx","a") as afile:
 		afile.write(hashFile(filename)+" "+filename)
 		afile.close()
 
 
 def findFile(hashcode):
-	afile = open("files.idx","r")
+	afile = open(ROOT+"/files.idx","r")
 	lines = afile.readlines()
 	afile.close()
 	for line in lines:
@@ -40,8 +43,8 @@ def is_open(file_name):
     raise NameError
 
 def refreshIndex():
-	afile = open("files.idx","w")
-	for filename in os.listdir("Downloads"):
+	afile = open(ROOT+"/files.idx","w")
+	for filename in os.listdir(ROOT+"/Shared"):
 		afile.write(hashFile(filename)+" "+filename)
 
 def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = None):
@@ -52,12 +55,10 @@ def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = N
         sock.connect((ip,port))
         cl = True
     sock.send("READY")
-    print "Sent " 
     l = sock.recv(1024)
-    print "Received " + l
     if node:
         l = str(node)
-    f = open("Downloads/"+l,"wb")
+    f = open(ROOT+"/Downloads/"+l,"wb")
     while l:
         l = sock.recv(1024)
         if my_private:
@@ -82,7 +83,6 @@ def send_file(name, port, my_private=None, node_pub=None, sock=None):
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('',port))
-        print("Waiting for connection ... ")
         cl = True
     	sock.listen(1)
     	conn, adr = sock.accept()

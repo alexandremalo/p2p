@@ -58,10 +58,9 @@ def writefile(name,obj):
 	f.write(obj)
 	f.close()
 
-#TODO : change this function to support lookup for node's public key using routing table
 def lookup_public_key(node_id):
-	if os.path.isfile('Downloads/'+node_id+'.key'):
-		RSA_key = readfile('Downloads/'+node_id+'.key')
+	if os.path.isfile('Downloads/'+str(node_id)):
+		RSA_key = readfile('Downloads/'+str(node_id))
 		RSA_key = RSA.importKey(RSA_key)
 		return RSA_key
 	else:

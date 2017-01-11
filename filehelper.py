@@ -46,15 +46,15 @@ def refreshIndex():
 
 def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = None):
     l = 1
-	cl = None
+    cl = None
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((ip,port))
         cl = 1
     sock.send("READY");
     l = sock.recv(1024)
-    if Node:
-        l = node + l[6:]
+    if node:
+        l = str(node)
     f = open("Downloads/"+l,"wb")
     while l:
         l = sock.recv(1024)
@@ -75,7 +75,7 @@ def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = N
 
 def send_file(name, port, my_private=None, node_pub=None, sock=None):
     cl = None
-	conn = sock
+    conn = sock
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('',port))
@@ -107,8 +107,8 @@ def send_file(name, port, my_private=None, node_pub=None, sock=None):
         conn.send(str(end))
     else:
         conn.send(end)
-    conn.close()
     if cl :
+    	conn.close()
         sock.close()
     return True
 

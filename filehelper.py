@@ -10,7 +10,7 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def hashFile(filename):
 	hasher = hashlib.md5()
-	filename = ROOT + "/" + filename
+	filename = ROOT + "/Shared/" + filename
 	with open(filename,'rb') as afile:
 		buf = afile.read()
 		hasher.update(buf)
@@ -77,9 +77,11 @@ def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = N
     if cl :
         sock.close()
 
-def send_file(name, port, my_private=None, node_pub=None, sock=None):
+def send_file(path, port, my_private=None, node_pub=None, sock=None,name = None):
     cl = False
     conn = sock
+    if not name:
+        name = path
     if not sock:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('',port))
@@ -92,7 +94,7 @@ def send_file(name, port, my_private=None, node_pub=None, sock=None):
     if m == "READY":
         conn.send(name)
     try:
-        f = open(name,"rb")
+        f = open(path,"rb")
     except:
         print("File not found!!")
         return False

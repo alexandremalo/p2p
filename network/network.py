@@ -193,21 +193,40 @@ def take_action_on_message(string, rt, ip):
 	elif split_message[0] == "SEARCH":
 		node = int(split_message[1])
 		hash = split_message[2]
+		ttl = int(split_message[3])
 		file_search = fh.findFile(hash)
 		if file_search == False:
-			#message_all_nodes(string)
-			return "DISPACHED"
+			if ttl == 0 :
+				return "No_answer_needed"
+			ttl = ttl - 1
+			msg = "SEARCHFOR::"+str(node)+"::"+hash+"::"+str(ttl)
+			message_all_nodes(msg, rt) 
+			return "No_answer_needed"
 		port = get_free_tcp_port()
 		t = threading.Thread(target=sf.send_file,args=(file_search,port,rt.get_my_id()))
-		print "KIIIILLLEEEEEEEEED " + str(port))
 		t.start()
-		return "COMEGETIT::"+str(port)+"::"+file_search
+		send_message_to_id(node,rt, "COMEGETIT::"+str(port)+"::"+file_search)
 	elif split_message[0] == "COMEGETIT":
-		print "KIIIILLLEEEEEEEEED " + ip
-		port = split_message[1]
+		port = int(split_message[1])
 		filename = split_message[2]
 		t = threading.Thread(target=sf.receive_file, args=(ip,port,filename,rt.get_my_id()))
 		t.start()
+	elif split_message[0] == "SEARCHFOR":
+		node = int(split_message[1])
+		hash = split_message[2]
+		ttl = int(split_message[3])
+		file_search = fh.findFile(hash)
+		if file_search == False:
+			if ttl == 0:
+				return "No_answer_needed"
+			ttl = ttl - 1
+			msg = "SEARCHFOR::"+str(node)+"::"+hash+"::"+str(ttl)
+			message_all_nodes(msg, rt)
+			return "No_answer_needed"
+		port = get_free_tcp_port()
+		t = threading.Thread(target=sf.send_file,args=(file_search,port,rt.get_my_id()))
+		t.start()
+		send_message_to_id(node,rt, "COMEGETIT::"+str(port)+"::"+file_search)
 	elif split_message[0] == "DEAD":
 		node = int(split_message[1])
 		ip = split_message[2]
@@ -278,7 +297,8 @@ def send_message_to_directly_connected_node(message, host, port, answer_needed=F
 			print "Error: Answer from server was expected :("
         return toReturn
 
-def down_file(rt,hash):
+'''
+def down_down_file(rt,hash):
 	ttlmax = rt.get_total_host()
 	ttl = 1
 	found = False
@@ -301,11 +321,8 @@ def down_file(rt,hash):
 		tll += 1
 	if ip != None and port != None:
 		##FARID ICI
+'''
 
-
-def down_down_file(rt,hash,ttl)
-        message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+str(ttl-1)
+def down_file(rt,hash):
+        message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+"::"+str(10)
         message_all_nodes(message, rt)
-        big_found = False
-        for entry in rt.get_table():
-                small

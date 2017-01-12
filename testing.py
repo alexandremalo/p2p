@@ -1,6 +1,11 @@
 import sharefile as sf
 import threading
+import filehelper as fh
 
+fh.refreshIndex()
+
+
+'''
 while True:
 	print "choose :"
 	print "1 - Send"
@@ -15,3 +20,5 @@ while True:
 		t = threading.Thread(target=sf.receive_file, args=("127.0.0.1",p,"test.txt",i))
 		t.start()
 		t.join()
+
+'''

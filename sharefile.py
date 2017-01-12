@@ -7,7 +7,8 @@ import os.path
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def send_file(filename, port, me):
-	filename = ROOT + "/" + filename
+	name = filename
+	filename = ROOT + "/Shared/" + filename
 	print filename
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.bind(('',port))
@@ -22,7 +23,7 @@ def send_file(filename, port, me):
 	if not os.path.isfile(ROOT+"/keys/public.key"):
 		sec.getPrivate()
 	fh.send_file(ROOT+"/keys/public.key",None,sock=conn)
-	fh.send_file(filename,None,sec.getPrivate(),sec.lookup_public_key(m),conn)
+	fh.send_file(filename,None,sec.getPrivate(),sec.lookup_public_key(m),conn,name=name)
 	conn.close()
 	sock.close()
 	os.remove(ROOT+"/Downloads/"+str(m))

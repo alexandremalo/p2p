@@ -245,6 +245,7 @@ def ping_directly_connected_nodes(rt):
                         #print "PING..."
 			answer2 = ping_direct_node(int(entry.get_node_id()), entry.get_node_ip(), int(entry.get_node_port()), rt)
 			if answer2:
+				t = answer2
 				#print "Not Dead yet..."
 			else:
 				count = 0

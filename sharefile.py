@@ -8,8 +8,7 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def send_file(filename, port, me):
 	name = filename
-	filename = ROOT + "/Shared/" + filename
-	print filename
+	filename = ROOT + "/Shared/" + filename[:-1]
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.bind(('',port))
 	sock.listen(1)

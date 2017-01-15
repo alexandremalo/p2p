@@ -90,10 +90,10 @@ def send_file(path, port, my_private=None, node_pub=None, sock=None,name = None)
     	conn, adr = sock.accept()
     	print(adr)
     m = conn.recv(1024)
-    print m
     if m == "READY":
         conn.send(name)
     try:
+        print("khra "+path)
         f = open(path,"rb")
     except:
         print("File not found!!")

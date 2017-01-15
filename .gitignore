@@ -1,6 +1,6 @@
 *.pyc
-download/*
-shared/*
+Downloads/*
+Shared/*
 keys/*
 *.swp
 *.key

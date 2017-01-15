@@ -19,7 +19,7 @@ def hashFile(filename):
 
 def updateIndex(filename):
 	with open(ROOT+"/files.idx","a") as afile:
-		afile.write(hashFile(filename)+" "+filename)
+		afile.write(hashFile(filename)+" "+filename+"\n")
 		afile.close()
 
 
@@ -45,7 +45,7 @@ def is_open(file_name):
 def refreshIndex():
 	afile = open(ROOT+"/files.idx","w")
 	for filename in os.listdir(ROOT+"/Shared"):
-		afile.write(hashFile(filename)+" "+filename)
+		afile.write(hashFile(filename)+" "+filename+"\n")
 
 def receive_file(ip, port, my_private=None, node_pub=None, sock = None, node = None):
     l = 1

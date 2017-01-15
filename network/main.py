@@ -10,7 +10,7 @@ import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
-import filehelper
+import filehelper as fh
 from Node import Node
 from p2pMec import RoutingTable
 from tcplisten import ThreadingExample
@@ -51,6 +51,7 @@ def menu_down(me):
 def start():
 	answer = " "
 	while answer != "3":
+		fh.refreshIndex()
 		print "1 - Normal mode"
         	print "2 - Debug mode"
 		print "3 - Quit"

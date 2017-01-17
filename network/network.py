@@ -325,5 +325,5 @@ def down_down_file(rt,hash):
 '''
 
 def down_file(rt,hash):
-        message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+"::"+str(10)
+        message = "SEARCH::"+str(rt.get_my_id())+"::"+hash+"::"+str(2)
         message_all_nodes(message, rt)

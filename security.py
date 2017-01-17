@@ -9,6 +9,7 @@ import os.path
 import socket
 import Crypto.Util.number
 
+ROOT = os.path.dirname(os.path.realpath(__file__))
 
 def encrypt_message(message, my_privatekey, node_publickey):
 	sha = SHA256.new(message)
@@ -36,17 +37,17 @@ def decrypt_message_from_node(node_id, message):
 	return decrypt_message(message, my_priv, pub_key)
 
 def getPrivate():
-	if os.path.isfile('keys/private.key') :
-		RSA_key = readfile('keys/private.key')
+	if os.path.isfile(ROOT+'/keys/private.key') :
+		RSA_key = readfile(ROOT+'/keys/private.key')
 		RSA_key = RSA.importKey(RSA_key)
 		return RSA_key
 	else:
 		random_generator = Random.new().read
 		key = RSA.generate(1024, random_generator)
 		pke = key.exportKey(format='PEM')
-		writefile('keys/private.key', pke)
+		writefile(ROOT+'/keys/private.key', pke)
 		pke = key.publickey().exportKey(format='PEM')
-		writefile('keys/public.key',pke)
+		writefile(ROOT+'/keys/public.key',pke)
 		return getPrivate()
 
 def readfile(name):
@@ -59,8 +60,8 @@ def writefile(name,obj):
 	f.close()
 
 def lookup_public_key(node_id):
-	if os.path.isfile('Downloads/'+str(node_id)):
-		RSA_key = readfile('Downloads/'+str(node_id))
+	if os.path.isfile(ROOT+'/Downloads/'+str(node_id)):
+		RSA_key = readfile(ROOT+'/Downloads/'+str(node_id))
 		RSA_key = RSA.importKey(RSA_key)
 		return RSA_key
 	else:

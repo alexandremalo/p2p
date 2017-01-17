@@ -25,7 +25,10 @@ def send_file(filename, port, me):
 	fh.send_file(filename,None,sec.getPrivate(),sec.lookup_public_key(m),conn,name=name)
 	conn.close()
 	sock.close()
-	os.remove(ROOT+"/Downloads/"+str(m))
+	try:
+		os.remove(ROOT+"/Downloads/"+str(m))
+	except:
+		return
 
 def receive_file(ip,port,filename,me):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,5 +44,9 @@ def receive_file(ip,port,filename,me):
 	fh.receive_file(None,None,sock=sock,node=he)
 	fh.receive_file(None,None,sec.getPrivate(),sec.lookup_public_key(he),sock=sock)
 	sock.close()
-	os.remove(ROOT+"/Downloads/"+str(he))
+	try:
+		os.remove(ROOT+"/Downloads/"+str(he))
+	except:
+		fh.refreshIndex()
+		return
 	fh.refreshIndex()

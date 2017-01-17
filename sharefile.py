@@ -33,7 +33,7 @@ def send_file(filename, port, me):
 def receive_file(ip,port,filename,me):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((ip,port))
-	if os.path.isfile(ROOT+"/Downloads/"+filename):
+	if os.path.isfile(ROOT+"/Downloads/"+filename) and fh.is_open(ROOT+"/Downloads/"+filename):
 		sock.send("KILL")
 		return None
 	sock.send(str(me))
